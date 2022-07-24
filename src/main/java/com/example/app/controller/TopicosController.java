@@ -33,8 +33,10 @@ public class TopicosController {
 	@Autowired
 	private CursoRepository cursoRepository;
 	
+	//nomeCurso é um query param
 	@GetMapping
 	public List<TopicoDto> lista(String nomeCurso) {
+		//Caso o query param não tenha sido passado
 		if (nomeCurso == null) {
 			List<Topico> topicos = topicoRepository.findAll();
 			return TopicoDto.converter(topicos);
@@ -44,12 +46,14 @@ public class TopicosController {
 		}
 	}
 	
+	//ResponseEntity ajuda a personalizar o header, status e etc.
 	@PostMapping
 	@Transactional
 	public ResponseEntity<TopicoDto> cadastrar(@RequestBody @Valid TopicoForm form, UriComponentsBuilder uriBuilder) {
 		Topico topico = form.converter(cursoRepository);
 		topicoRepository.save(topico);
-		
+
+		//Responde no header o caminho do topico cadastrado com o id respectivo
 		URI uri = uriBuilder.path("/topicos/{id}").buildAndExpand(topico.getId()).toUri();
 		return ResponseEntity.created(uri).body(new TopicoDto(topico));
 	}

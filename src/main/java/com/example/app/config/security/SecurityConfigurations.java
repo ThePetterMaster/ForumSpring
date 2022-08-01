@@ -46,7 +46,7 @@ public class SecurityConfigurations extends WebSecurityConfigurerAdapter {
     }
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http
+        http.cors().and()
             .authorizeHttpRequests()
             .antMatchers(HttpMethod.GET,"/topicos").permitAll()
             .antMatchers(HttpMethod.GET,"/topicos/*").permitAll()

@@ -48,8 +48,8 @@ public class SecurityConfigurations extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http
             .authorizeHttpRequests()
-            //.antMatchers(HttpMethod.GET,"/topicos").permitAll()
-            //.antMatchers(HttpMethod.GET,"/topicos/*").permitAll()
+            .antMatchers(HttpMethod.GET,"/topicos").permitAll()
+            .antMatchers(HttpMethod.GET,"/topicos/*").permitAll()
             .antMatchers(HttpMethod.POST,"/auth").permitAll()
             .anyRequest().authenticated()
             .and().csrf().disable().sessionManagement()

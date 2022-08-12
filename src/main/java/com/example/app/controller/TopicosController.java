@@ -31,6 +31,7 @@ import com.example.app.controller.dto.*;
 import com.example.app.controller.form.*;
 import com.example.app.modelo.*;
 import com.example.app.repository.*;
+import com.example.app.service.TopicosService;
 
 @CrossOrigin
 @RestController
@@ -42,21 +43,24 @@ public class TopicosController {
 	
 	@Autowired
 	private CursoRepository cursoRepository;
+
+	@Autowired
+	private TopicosService topicosService;
 	
 	//nomeCurso é um query param
 	
 	@GetMapping
 	@Cacheable(value="listaDeTopicos")
 	public Page<TopicoDto> lista(@RequestParam(required=false) String nomeCurso,@PageableDefault(sort = "id",direction=Direction.DESC,page=0,size=10) Pageable paginacao) {
-
+		return topicosService.lista(nomeCurso,paginacao);
 		//Caso o query param não tenha sido passado
-		if (nomeCurso == null) {
-			Page<Topico> topicos = topicoRepository.findAll(paginacao);
-			return TopicoDto.converter(topicos);
-		} else {
-			Page<Topico> topicos = topicoRepository.findByCursoNome(nomeCurso,paginacao);
-			return TopicoDto.converter(topicos);
-		}
+		// if (nomeCurso == null) {
+		// 	Page<Topico> topicos = topicoRepository.findAll(paginacao);
+		// 	return TopicoDto.converter(topicos);
+		// } else {
+		// 	Page<Topico> topicos = topicoRepository.findByCursoNome(nomeCurso,paginacao);
+		// 	return TopicoDto.converter(topicos);
+		// }
 	}
 	
 	//ResponseEntity ajuda a personalizar o header, status e etc.
@@ -64,55 +68,47 @@ public class TopicosController {
 	@Transactional
 	@CacheEvict(value="listaDeTopicos",allEntries = true)
 	public ResponseEntity<TopicoDto> cadastrar(@RequestBody @Valid TopicoForm form, UriComponentsBuilder uriBuilder) {
-		Topico topico = form.converter(cursoRepository);
-		topicoRepository.save(topico);
+		// Topico topico = form.converter(cursoRepository);
+		// topicoRepository.save(topico);
 
-		//Responde no header o caminho do topico cadastrado com o id respectivo
-		URI uri = uriBuilder.path("/topicos/{id}").buildAndExpand(topico.getId()).toUri();
-		return ResponseEntity.created(uri).body(new TopicoDto(topico));
+		// //Responde no header o caminho do topico cadastrado com o id respectivo
+		// URI uri = uriBuilder.path("/topicos/{id}").buildAndExpand(topico.getId()).toUri();
+		// return ResponseEntity.created(uri).body(new TopicoDto(topico));
+		return topicosService.cadastrar(form, uriBuilder);
 	}
 	
 	@GetMapping("/{id}")
 	public ResponseEntity<DetalhesDoTopicoDto> detalhar(@PathVariable Long id) {
-		Optional<Topico> topico = topicoRepository.findById(id);
-		if (topico.isPresent()) {
-			return ResponseEntity.ok(new DetalhesDoTopicoDto(topico.get()));
-		}
+		// Optional<Topico> topico = topicoRepository.findById(id);
+		// if (topico.isPresent()) {
+		// 	return ResponseEntity.ok(new DetalhesDoTopicoDto(topico.get()));
+		// }
 		
-		return ResponseEntity.notFound().build();
+		// return ResponseEntity.notFound().build();
+		return topicosService.detalhar(id);
 	}
 	
 	@PutMapping("/{id}")
 	@Transactional
 	@CacheEvict(value="listaDeTopicos",allEntries = true)
 	public ResponseEntity<TopicoDto> atualizar(@PathVariable Long id, @RequestBody @Valid AtualizacaoTopicoForm form) {
-		Optional<Topico> optional = topicoRepository.findById(id);
-		if (optional.isPresent()) {
-			Topico topico = form.atualizar(id, topicoRepository);
-			return ResponseEntity.ok(new TopicoDto(topico));
-		}
+		// Optional<Topico> optional = topicoRepository.findById(id);
+		// if (optional.isPresent()) {
+		// 	Topico topico = form.atualizar(id, topicoRepository);
+		// 	return ResponseEntity.ok(new TopicoDto(topico));
+		// }
 		
-		return ResponseEntity.notFound().build();
+		// return ResponseEntity.notFound().build();
+		return topicosService.atualizar(id,form);
 	}
 	
 	@DeleteMapping("/{id}")
 	@Transactional
 	@CacheEvict(value="listaDeTopicos",allEntries = true)
 	public ResponseEntity<?> remover(@PathVariable Long id) {
-		Optional<Topico> optional = topicoRepository.findById(id);
-		if (optional.isPresent()) {
-			topicoRepository.deleteById(id);
-			return ResponseEntity.ok().build();
-		}
-		
-		return ResponseEntity.notFound().build();
+		return topicosService.remover(id);
 	}
 
 }
-
-
-
-
-
 
 
